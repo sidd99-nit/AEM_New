@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tile.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .back-button {
+            background-color: #666666;
+            color: white;
+            padding: 1.5vh 2.5vh;
+            border: none;
+            border-radius: 0.5vh;
+            padding-bottom: 1%;
+            height: 1vh;
+            width: max-content;
+            font-size: small;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 2vh;
+            position: absolute;
+            top: 2vh;
+            left: 2.5vh;
+            z-index: 2; /* Keeps the button on top */
+        }
+
+        .back-button:hover {
+            background-color: #000000;
+        }
+
+        .gallery-container {
+            background-color: rgba(255, 255, 255, 0.9); /* Slight transparency */
+            border-radius: 0vh;
+            padding: 5vh;
+            width: 100vw; /* Adjusted for responsiveness */
+            max-width: 200vh;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .main-image-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+        }
+
+        .main-image-container img {
+            width: 100%;
+            height: auto; /* Prevents stretching */
+            max-height: 70vh;
+            object-fit: contain; /* Maintains aspect ratio without stretching */
+            border-radius: 0vh;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3vh;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            padding: 1vh;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .arrow-left {
+            left: 5vh; /* Move left arrow further */
+        }
+
+        .arrow-right {
+            right: 5vh; /* Move right arrow further */
+        }
+
+        .arrow:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .thumbnails {
+            margin-top: 2vh;
+            display: flex;
+            justify-content: center;
+            gap: 1vh;
+            overflow-x: auto;
+            padding-bottom: 0.5vh;
+        }
+
+        .thumbnail {
+            width: 7vh;
+            height: 7vh;
+            object-fit: cover;
+            border-radius: 0.5vh;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 0.1vh solid transparent;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.01);
+            border-color: #a9d3ff;
+        }
+
+        .thumbnail.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.6);
+        }
+
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">Back</a>
+    <div class="gallery-container">
+        <div class="main-image-container">
+            <img id="mainImage" src="{{ tile.images[0] }}" alt="Main Image">
+            <div class="arrow arrow-left" id="prevButton">&lt;</div>
+            <div class="arrow arrow-right" id="nextButton">&gt;</div>
+        </div>
+        <div class="thumbnails" id="thumbnailContainer">
+            {% for image in tile.images %}
+                <img src="{{ image }}" class="thumbnail" onclick="changeImage('{{ image }}')">
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        const temp_images = {{ tile.images | safe }};
+        let currentIndex = 0;
+
+        const mainImage = document.getElementById('mainImage');
+        const updateMainImage = () => {
+            mainImage.src = temp_images[currentIndex];
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach((thumbnail, index) => {
+                thumbnail.classList.remove('selected');
+                if (index === currentIndex) {
+                    thumbnail.classList.add('selected');
+                }
+            });
+        };
+
+        document.getElementById('prevButton').onclick = () => {
+            currentIndex = (currentIndex - 1 + temp_images.length) % temp_images.length;
+            updateMainImage();
+        };
+
+        document.getElementById('nextButton').onclick = () => {
+            currentIndex = (currentIndex + 1) % temp_images.length;
+            updateMainImage();
+        };
+
+        window.changeImage = (src) => {
+            currentIndex = temp_images.indexOf(src);
+            updateMainImage();
+        };
+
+        updateMainImage();
+    </script>
+</body>
+</html>
